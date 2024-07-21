@@ -48,3 +48,6 @@
 
 * The Old Republic beta (PC)
   * new packed_codebooks, Wwise 2011.2 uses aoTuV beta 6.03
+
+* SimCity 2013 (PC)
+  * (nothing yet!)
