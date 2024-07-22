@@ -26,7 +26,18 @@ extern "C" void WWRiff_GenerateOGG(WWRiff *wwriff, const char *outfilename)
     std::ofstream st;
 
     st.open(outfilename);
-    wwriff->cl->generate_ogg(st);
+
+    try {
+        wwriff->cl->generate_ogg(st);
+    }
+    catch (const File_open_error& fe)
+    {
+        cout << fe << endl;
+    }
+    catch (const Parse_error& pe)
+    {
+        cout << pe << endl;
+    }
 
     st.close();
 }

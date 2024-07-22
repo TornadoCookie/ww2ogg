@@ -23,8 +23,7 @@ src/crc.o: src/crc.c src/crc.h
 src/cwwriff.o: src/cwwriff.cpp src/cwwriff.h $(WWRIFF_HEADERS)
 
 libwwriff$(LIB_EXT): src/wwriff.o src/codebook.o src/crc.o src/cwwriff.o
-	$(CXX) -shared $(CXXFLAGS) $^ -o $@
-	$(STRIP) $@
+	$(CXX) -shared -g $(CXXFLAGS) $^ -o $@
 
 clean:
 	rm -f $(EXE_NAME) $(OBJECTS) libwwriff$(LIB_EXT)
