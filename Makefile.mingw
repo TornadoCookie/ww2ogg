@@ -1,8 +1,8 @@
 CFLAGS=-std=c99 -pedantic -Wall -O
 CXXFLAGS=-static -pedantic -Wall -Weffc++ -Wextra -Wold-style-cast -O
-STRIP=i686-w64-mingw32-strip
-CC=i686-w64-mingw32-gcc
-CXX=i686-w64-mingw32-g++
+STRIP=x86_64-w64-mingw32-strip
+CC=x86_64-w64-mingw32-gcc
+CXX=x86_64-w64-mingw32-g++
 EXE_EXT=.exe
 LIB_EXT=.dll
 
