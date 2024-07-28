@@ -10,8 +10,22 @@ extern "C" WWRiff *WWRiff_Create(const char *name, const char *codebooks_name, b
                       bool full_setup, CForcePacketFormat force_packet_format)
 {
     WWRiff *ret = (WWRiff *)malloc(sizeof(WWRiff));
-
-    ret->cl = new Wwise_RIFF_Vorbis(std::string(name), std::string(codebooks_name), inline_codebooks, full_setup, ForcePacketFormat(force_packet_format));
+    
+    try {
+        ret->cl = new Wwise_RIFF_Vorbis(std::string(name), std::string(codebooks_name), inline_codebooks, full_setup, ForcePacketFormat(force_packet_format));
+    }
+    catch (const File_open_error& fe)
+    {
+        cout << fe << endl;
+        free(ret);
+        return NULL;
+    }
+    catch (const Parse_error& pe)
+    {
+        cout << pe << endl;
+        free(ret);
+        return NULL;
+    }
 
     return ret;
 }
