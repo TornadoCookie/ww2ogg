@@ -35,7 +35,7 @@ extern "C" void WWRiff_PrintInfo(WWRiff *wwriff)
     wwriff->cl->print_info();
 }
 
-extern "C" void WWRiff_GenerateOGG(WWRiff *wwriff, const char *outfilename)
+extern "C" bool WWRiff_GenerateOGG(WWRiff *wwriff, const char *outfilename)
 {
     std::ofstream st;
 
@@ -47,11 +47,20 @@ extern "C" void WWRiff_GenerateOGG(WWRiff *wwriff, const char *outfilename)
     catch (const File_open_error& fe)
     {
         cout << fe << endl;
+        return false;
     }
     catch (const Parse_error& pe)
     {
         cout << pe << endl;
+        return false;
+    }
+    catch (const Bit_stream::Out_of_bits)
+    {
+        cout << "Out of bits." << endl;
+        return false;
     }
 
     st.close();
+
+    return true;
 }
