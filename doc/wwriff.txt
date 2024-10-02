@@ -1,0 +1,97 @@
+== Wwise Audio format ==
+
+The Wwise sound system uses a version of RIFF, which we will call WWRiff.
+These files contain Vorbis (OGG) data.
+There are two steps to converting a WWRiff file to an OGG:
+1. Reading the WWRiff file
+2. Writing the OGG file
+
+=== Reading the WWRiff ===
+WWRiff files are in the following format:
+First, we have the RIFF header:
+char riffSignature[4]; // "RIFF" if big endian, "RIFX" if little endian
+uint riffSize;         // The size of the RIFF file, should be equal to the size of the file
+
+Then, we have the WAVE header, which is comprised of just a signature:
+char waveSignature[4]; // "WAVE"
+
+Everything afterwards is comprised of chunks, like in a typical WAVE file.
+The structure of a chunk is as follows:
+char chunkType[4]; // A 4 letter identifier for the chunk
+uint chunkSize;    // The size of the chunk in bytes
+
+Chunk types:
+The format of each chunk is as follows:
+Chunk type: "fmt " (Audio format information)
+uint16 codecId;        // Always 0xFFFF in a WWRiff file
+uint16 channelCount;   // Mono: 1, Stereo: 2
+uint sampleRate;       // Sample rate.
+uint averageBytesPerSecond; // Average bytes per second.
+uint16 blockAlignment; // Must be 0
+uint16 bitsPerSecond;  // Must be 0
+uint16 extraFmtLength; // Length of the extra bytes in the chunk. Must be equal to chunkSize-0x12.
+if extraFmtLength >= 2:
+	uint16 extUnk; // Unknown.
+	if extraFmtLength >= 6:
+		uint16 subtype; // I don't know what this is
+if chunkSize == 0x28:
+	// This chunk is always equal to the following string of bytes:
+	// 01 00 00 00 00 00 10 00 80 00 00 AA 00 38 9B 71
+	char whoKnows[16];
+Chunk type: "cue "
+uint cueCount;
+Chunk type: "LIST"
+// ww2ogg does nothing with this chunk
+Chunk type: "smpl" (Loop data)
+char unknown[0x1c];
+uint loopCount; // The number of times this audio should loop, 1 meaning it plays once
+char unknown[0xc];
+uint loopStart;
+uint loopEnd;
+Chunk type: "vorb" (Vorbis data)
+uint sampleCount;
+if chunkSize == 0x2A:
+	// No granules
+	uint unknown;
+	uint modSignal;
+	if modSignal != 0x4A and modSignal != 0x4B and modSignal != 0x69 and modSignal != 0x70:
+		// Mod packets
+	char unknown2[0x10];
+else:
+	char unknown[0x18];
+uint setupPacketOffset;
+uint firstAudioPacketOffset;
+if chunkSize == 0x2A:
+	char unknown[0x24];
+elseif chunkSize == 0x32 or chunkSize == 0x34:
+	char unknown[0x2C];
+if chunkSize == 0x28 or chunkSize == 0x2C:
+	// Header Triad is present, write the OGG header with a triad
+elseif chunkSize == 0x2A or chunkSize == 0x32 or chunkSize == 0x34:
+	uint uid;
+	char blockSize0pow;
+	char blockSize1pow;
+Chunk type: "data"
+// ww2ogg does nothing with this chunk
+
+The fmt and data chunks are required.
+The size of the fmt chunk must equal 0x28, 0x18, or 0x12,
+unless the vorb chunk is unaligned, in which the size of the fmt chunk is 0x42, and the offset of the vorb chunk is the offset of the fmt chunk plus 0x18.
+The size of the vorb chunk must equal 0x28, 0x2A, 0x2C, 0x32, or 0x34.
+
+=== Writing the OGG file ===
+If the header has a triad present, write the header with a triad:
+[TODO]
+Otherwise, just write the header:
+uint version; // We set to 0
+char channels;
+uint sampleRate;
+uint maxBitRate;   // We set to 0
+uint nominalBitRate; // We set to avgBytesPerSecond * 8
+uint minBitRate;   // We set to 0
+nibble blocksize0; // We set to blocksize0pow;
+nibble blocksize1; // We set to blocksize1pow;
+bit framing; // We set to 1
+[TODO]
+Write the audio data:
+[TODO]
