@@ -59,6 +59,11 @@ extern "C" bool WWRiff_GenerateOGG(WWRiff *wwriff, const char *outfilename)
         cout << "Out of bits." << endl;
         return false;
     }
+    catch (const Bit_uint<4u>::Int_too_big)
+    {
+        cout << "Int too big." << endl;
+        return false; 
+    }
 
     st.close();
 
